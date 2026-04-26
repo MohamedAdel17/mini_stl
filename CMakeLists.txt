@@ -24,17 +24,34 @@ target_include_directories(mini_stl INTERFACE
 )
 
 # -------------------------------------------------------
-# Demo / Example executable
+# Compiler warnings
+# -------------------------------------------------------
+set(MINI_STL_WARNINGS
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+)
+
+# -------------------------------------------------------
+# Demo executable
 # -------------------------------------------------------
 add_executable(demo examples/demo.cpp)
 target_link_libraries(demo PRIVATE mini_stl)
+target_compile_options(demo PRIVATE ${MINI_STL_WARNINGS})
+
+# Link pthreads on Linux/Mac (required for std::thread)
+find_package(Threads REQUIRED)
+target_link_libraries(demo PRIVATE Threads::Threads)
 
 # -------------------------------------------------------
-# Compiler warnings (good practice for a portfolio project)
+# Benchmark executable
 # -------------------------------------------------------
-target_compile_options(demo PRIVATE
-    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
-    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+add_executable(benchmark benchmarks/benchmark.cpp)
+target_link_libraries(benchmark PRIVATE mini_stl Threads::Threads)
+
+# Optimized build for benchmarks
+target_compile_options(benchmark PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-O2>
+    $<$<CXX_COMPILER_ID:MSVC>:/O2>
 )
 
 # -------------------------------------------------------

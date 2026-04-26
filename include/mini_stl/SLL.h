@@ -111,7 +111,7 @@ namespace mini_stl
 		{
 
 			if (empty())
-				throw exception("Empty Linked List!\n");
+				throw runtime_error("Empty Linked List!\n");
 
 			return head->data;
 		}

@@ -87,7 +87,7 @@ namespace mini_stl
 		{
 
 			if (empty())
-				throw exception("Empty double linked list!\n");
+				throw runtime_error("Empty double linked list!\n");
 
 			return head->data;
 		}
@@ -95,7 +95,7 @@ namespace mini_stl
 		{
 
 			if (empty())
-				throw exception("Empty double linked list!\n");
+				throw runtime_error("Empty double linked list!\n");
 
 			return tail->data;
 		}

@@ -11,9 +11,20 @@ namespace mini_stl
 {
 
 	template <typename Ty>
+	struct NodeQ
+	{
+		Ty data;
+		NodeQ *prev, *next;
+
+		// Para. const.
+		NodeQ(NodeQ *p, const Ty &val, NodeQ *n)
+			: data(val), prev(p), next(n) {}
+	};
+
+	template <typename Ty>
 	class Queue
 	{
-		using Node = NodeD<Ty>;
+		using Node = NodeQ<Ty>;
 		using NodePtr = Node *;
 
 		NodePtr head, tail;
