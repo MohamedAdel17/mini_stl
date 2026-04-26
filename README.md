@@ -130,7 +130,7 @@ The benchmark suite (`benchmarks/benchmark.cpp`) measures each container against
 ./build/benchmark
 ```
 
-See [PERFORMANCE.md](PERFORMANCE.md) for full details on methodology, results, and design tradeoffs.
+See [PERFORMANCE.md](PERFORMANCE.md) for real benchmark results, analysis, and design tradeoffs.
 
 ---
 
@@ -170,7 +170,10 @@ mini_stl/
 ├── benchmarks/
 │   └── benchmark.cpp
 ├── CMakeLists.txt
+├── BUILD.bazel
+├── WORKSPACE
 ├── PERFORMANCE.md
+├── CONTRIBUTING.md
 └── README.md
 ```
 
@@ -184,6 +187,12 @@ mini_stl/
 - **Iterators** — core containers implement `begin()`/`end()` for range-based for loop support.
 - **Concurrency** — concurrent containers are non-copyable by design (copying a live mutex or atomic is undefined behavior).
 - **No external dependencies** — pure C++17, nothing else needed.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for code style guidelines, how to add a new container, and the pull request checklist.
 
 ---
 
