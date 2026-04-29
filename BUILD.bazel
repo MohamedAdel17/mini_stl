@@ -1,0 +1,58 @@
+# BUILD
+# Bazel build file for mini_stl
+#
+# Requirements:
+#   - Bazel 6.0+ (https://bazel.build)
+#
+# Usage:
+#   bazel build //...              # build everything
+#   bazel run //:demo              # run the demo
+#   bazel run //:benchmark         # run benchmarks
+#   bazel build //:mini_stl        # build library only
+
+# -------------------------------------------------------
+# mini_stl — header-only library
+#
+# cc_library with hdrs (not srcs) because it's header-only.
+# strip_include_prefix makes includes work as:
+#   #include "mini_stl/Vector.h"
+# -------------------------------------------------------
+cc_library(
+    name = "mini_stl",
+    hdrs = glob([
+        "include/mini_stl/*.h",
+    ]),
+    strip_include_prefix = "include",
+    visibility = ["//visibility:public"],
+    copts = ["-std=c++17"],
+)
+
+# -------------------------------------------------------
+# demo — example executable
+# -------------------------------------------------------
+cc_binary(
+    name = "demo",
+    srcs = ["examples/demo.cpp"],
+    deps = [":mini_stl"],
+    copts = [
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+    ],
+    linkopts = ["-lpthread"],
+)
+
+# -------------------------------------------------------
+# benchmark — performance benchmark executable
+# -------------------------------------------------------
+cc_binary(
+    name = "benchmark",
+    srcs = ["benchmarks/benchmark.cpp"],
+    deps = [":mini_stl"],
+    copts = [
+        "-std=c++17",
+        "-O2",
+    ],
+    linkopts = ["-lpthread"],
+)

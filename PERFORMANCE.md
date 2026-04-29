@@ -29,6 +29,67 @@ Each container is tested against its `std::` equivalent across three operations:
 
 ---
 
+## 📊 Results
+
+Compiled with: GCC — `-O2` — C++17 — WSL/Linux — 1,000,000 iterations
+
+```
+========================================
+  Vector<int>  vs  std::vector<int>  (1000000 elements)
+========================================
+Operation                     mini_stl (ms)  std (ms)       Verdict
+----------------------------------------------------------------------
+push_back x1000000            6.265          3.759          ~ within range
+operator[] x1000000           1.189          0.424          ~ within range
+pop_back x1000000             0.000          0.332          ✓ competitive
+
+========================================
+  Stack<int>  vs  std::stack<int>  (1000000 elements)
+========================================
+Operation                     mini_stl (ms)  std (ms)       Verdict
+----------------------------------------------------------------------
+push x1000000                 33.173         9.183          ~ within range
+top x1000000                  0.466          0.470          ✓ competitive
+pop x1000000                  7.744          1.025          ~ within range
+
+========================================
+  Queue<int>  vs  std::queue<int>  (1000000 elements)
+========================================
+Operation                     mini_stl (ms)  std (ms)       Verdict
+----------------------------------------------------------------------
+push x1000000                 17.784         15.038         ✓ competitive
+front x1000000                0.302          0.303          ✓ competitive
+pop x1000000                  8.744          0.856          ~ within range
+
+========================================
+  ThreadSafeQueue  vs  LockFreeStack  (1000000 ops)
+========================================
+Operation                     mini_stl (ms)  std (ms)       Verdict
+----------------------------------------------------------------------
+push + pop x1000000           33.183         27.615         (TSQ vs LFS — single thread)
+```
+
+---
+
+## 📝 Results Analysis
+
+### Vector
+- **`pop_back` is faster than `std::vector`** — `mini_stl::Vector::pop_back` is a single `_size--` decrement with no overhead, while `std::vector` performs bounds and state checks internally
+- **`push_back` is ~1.7× slower** — expected: `std::vector` uses highly optimized platform-specific memory allocation internally. Our implementation uses the same doubling strategy but without those low-level optimizations
+- **`operator[]` is ~2.8× slower** — `std::vector` benefits from compiler intrinsics and tighter memory layout optimizations
+
+### Stack & Queue
+- **`top` and `front` are on par with `std::`** — both are simple pointer dereferences, no difference
+- **`push` and `pop` are slower** — both `mini_stl::Stack` and `mini_stl::Queue` are linked-list based, meaning every push/pop allocates/frees a heap node. `std::stack` wraps `std::deque` which uses chunked memory and avoids per-element allocation
+- **Key insight:** for maximum single-threaded throughput, an array-based stack would outperform a linked-list stack. The linked-list design was chosen deliberately to demonstrate pointer manipulation, deep copy, and manual memory management
+
+### ThreadSafeQueue vs LockFreeStack
+- **LockFreeStack is ~17% faster** in single-threaded use — no mutex acquisition overhead
+- The real advantage of `LockFreeStack` shows under **high contention** with many threads, where mutex-based approaches serialize threads and cause context switches
+- `ThreadSafeQueue` trades raw speed for safety and simplicity — `wait_and_pop()` eliminates busy-spinning entirely, which is critical in producer/consumer systems
+
+---
+
 ## Design & Performance Notes
 
 ### Vector
@@ -57,7 +118,7 @@ Each container is tested against its `std::` equivalent across three operations:
 
 ## Memory Safety
 
-All components have been validated with **Valgrind**:
+All components validated with **Valgrind** — zero leaks:
 
 ```bash
 valgrind --leak-check=full --track-origins=yes ./build/demo
